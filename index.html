@@ -56,6 +56,11 @@
         .animate-fade-in {
             animation-name: fadeIn;
         }
+        @media (max-width: 768px) {
+    #hide-on-mobile {
+      display: none;
+            }
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -183,7 +188,7 @@
     <section id="about" class="py-20 bg-gray-100">
         <div class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-12">
             <div class="md:w-1/2">
-                <img src="https://placehold.co/600x400/818CF8/FFFFFF?text=Team+Working" alt="Team working on websites" class="rounded-xl shadow-lg transform hover:scale-102 transition duration-300">
+                <img src="https://placehold.co/600x400/818CF8/FFFFFF?text=Team+Working" alt="Team working on websites" id="hide-on-mobile" class="rounded-xl shadow-lg transform hover:scale-102 transition duration-300">
             </div>
             <div class="md:w-1/2 text-center md:text-left">
                 <h2 class="text-4xl font-bold text-gray-900 mb-6">About GlowByte</h2>
