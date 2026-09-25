@@ -18,6 +18,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
 
+    <!-- Header / Navbar -->
     <header class="bg-slate-800 border-b border-slate-700 px-4 py-2 shrink-0 flex items-center justify-between shadow-md">
         <div class="flex items-center space-x-2">
             <div class="bg-indigo-600 p-1.5 rounded-lg shadow-md shadow-indigo-500/30">
@@ -25,7 +26,7 @@
             </div>
             <div>
                 <h1 class="text-sm font-bold tracking-tight text-white leading-tight">Tournament Hub</h1>
-                <p class="text-[9px] text-slate-400">Scoreboard, Goals & Slideshow</p>
+                <p class="text-[9px] text-slate-400">Scoreboard, Timers & Slideshow</p>
             </div>
         </div>
 
@@ -43,9 +44,10 @@
         </div>
     </header>
 
+    <!-- Main Container - Single Screen Layout Grid -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-2.5 grid grid-cols-1 lg:grid-cols-12 gap-2.5 overflow-hidden">
 
-        <!-- Left Column: Teams & Controls (Takes up 7 cols) -->
+        <!-- Left Column: Teams & 10-Minute Timers (Takes up 7 cols) -->
         <section class="lg:col-span-7 flex flex-col gap-2 overflow-hidden">
             <!-- Toolbar -->
             <div class="bg-slate-800/60 border border-slate-700/60 px-3 py-1.5 rounded-xl flex items-center justify-between shrink-0">
@@ -64,8 +66,24 @@
             </div>
 
             <!-- Teams Scrollable Container -->
-            <div id="teams-container" class="flex-1 overflow-y-auto space-y-2 pr-1">
+            <div id="teams-container" class="max-h-[190px] overflow-y-auto space-y-2 pr-1 shrink-0">
                 <!-- Injected Team Cards -->
+            </div>
+
+            <!-- Timers Section Header & Add Button -->
+            <div class="bg-slate-800/60 border border-slate-700/60 px-3 py-2 rounded-xl flex items-center justify-between shrink-0 mt-1">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-stopwatch text-amber-400"></i>
+                    <h2 class="text-xs font-bold text-white tracking-wide">Match Timers (10 Mins)</h2>
+                </div>
+                <button onclick="addTimer()" class="bg-amber-600 hover:bg-amber-500 text-white font-medium px-2.5 py-1 rounded-lg text-xs transition shadow-sm flex items-center gap-1 cursor-pointer">
+                    <i class="fa-solid fa-plus text-[9px]"></i> Add 10m Timer
+                </button>
+            </div>
+
+            <!-- Multiple Timers Scrollable Container -->
+            <div id="timers-container" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                <!-- Dynamically injected active timers -->
             </div>
         </section>
 
@@ -200,6 +218,9 @@
         ];
 
         let missions = []; 
+        let timers = [
+            { id: 1, name: "Match Timer 1", timeLeft: 600, isRunning: false } // 600 seconds = 10 minutes
+        ];
         let customImageUrl = '';
 
         // Slideshow image sequence state (1.png to 4.png)
@@ -221,10 +242,30 @@
             }, 1000); // 1000ms = 1 second interval
         }
 
+        // Global Timer Tick Interval (runs every 1 second)
+        function startTimerEngine() {
+            setInterval(() => {
+                let updated = false;
+                timers.forEach(t => {
+                    if (t.isRunning && t.timeLeft > 0) {
+                        t.timeLeft--;
+                        if (t.timeLeft === 0) {
+                            t.isRunning = false;
+                        }
+                        updated = true;
+                    }
+                });
+                if (updated) {
+                    renderTimersOnly();
+                }
+            }, 1000);
+        }
+
         function loadState() {
-            const savedTeams = localStorage.getItem('tournament_hub_teams_v4');
-            const savedMissions = localStorage.getItem('tournament_hub_missions_v4');
-            const savedImg = localStorage.getItem('tournament_hub_custom_img_v4');
+            const savedTeams = localStorage.getItem('tournament_hub_teams_v5');
+            const savedMissions = localStorage.getItem('tournament_hub_missions_v5');
+            const savedTimers = localStorage.getItem('tournament_hub_timers_v5');
+            const savedImg = localStorage.getItem('tournament_hub_custom_img_v5');
             
             if (savedTeams) {
                 try {
@@ -238,6 +279,12 @@
                     if (Array.isArray(parsed)) missions = parsed;
                 } catch(e) {}
             }
+            if (savedTimers) {
+                try {
+                    const parsed = JSON.parse(savedTimers);
+                    if (Array.isArray(parsed) && parsed.length > 0) timers = parsed;
+                } catch(e) {}
+            }
             if (savedImg) {
                 customImageUrl = savedImg;
                 document.getElementById('image-url-input').value = customImageUrl;
@@ -246,14 +293,16 @@
         }
 
         function saveState() {
-            localStorage.setItem('tournament_hub_teams_v4', JSON.stringify(teams));
-            localStorage.setItem('tournament_hub_missions_v4', JSON.stringify(missions));
-            localStorage.setItem('tournament_hub_custom_img_v4', customImageUrl);
+            localStorage.setItem('tournament_hub_teams_v5', JSON.stringify(teams));
+            localStorage.setItem('tournament_hub_missions_v5', JSON.stringify(missions));
+            localStorage.setItem('tournament_hub_timers_v5', JSON.stringify(timers));
+            localStorage.setItem('tournament_hub_custom_img_v5', customImageUrl);
         }
 
         function render() {
             renderTeams();
             renderMissions();
+            renderTimers();
             saveState();
         }
 
@@ -341,6 +390,120 @@
                 `;
                 container.appendChild(div);
             });
+        }
+
+        // Multi-Timer Management
+        function renderTimers() {
+            const container = document.getElementById('timers-container');
+            container.innerHTML = '';
+
+            if (timers.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-500 text-[11px] py-4">No active timers. Click "Add 10m Timer" above!</div>`;
+                return;
+            }
+
+            timers.forEach((timer, index) => {
+                const minutes = Math.floor(timer.timeLeft / 60);
+                const seconds = timer.timeLeft % 60;
+                const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                const div = document.createElement('div');
+                div.className = "bg-slate-800 border border-slate-700/80 rounded-xl p-2.5 shadow-sm flex items-center justify-between gap-3";
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="text-[10px] font-bold text-amber-400 bg-slate-700/50 px-1.5 py-0.5 rounded">T${index + 1}</span>
+                        <input type="text" value="${escapeHtml(timer.name)}" onchange="updateTimerName(${timer.id}, this.value)"
+                            class="bg-transparent font-bold text-xs text-white border-b border-transparent hover:border-slate-600 focus:border-amber-500 focus:outline-none px-1 py-0.5 w-28 truncate">
+                    </div>
+                    
+                    <div class="font-mono text-base font-black ${timer.timeLeft === 0 ? 'text-red-400 animate-pulse' : 'text-amber-300'}">
+                        ${formattedTime}
+                    </div>
+
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="toggleTimer(${timer.id})" class="w-7 h-7 ${timer.isRunning ? 'bg-amber-600 hover:bg-amber-500' : 'bg-emerald-600 hover:bg-emerald-500'} text-white rounded-lg text-xs flex items-center justify-center transition cursor-pointer" title="${timer.isRunning ? 'Pause' : 'Start'}">
+                            <i class="fa-solid ${timer.isRunning ? 'fa-pause' : 'fa-play'} text-[10px]"></i>
+                        </button>
+                        <button onclick="resetTimer(${timer.id})" class="w-7 h-7 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs flex items-center justify-center transition cursor-pointer" title="Reset to 10:00">
+                            <i class="fa-solid fa-rotate-right text-[10px]"></i>
+                        </button>
+                        <button onclick="removeTimer(${timer.id})" class="w-7 h-7 bg-slate-700 hover:bg-red-500 text-slate-400 hover:text-white rounded-lg text-xs flex items-center justify-center transition cursor-pointer" title="Delete Timer">
+                            <i class="fa-solid fa-trash-can text-[10px]"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            saveState();
+        }
+
+        // Lightweight render for ticking clock without resetting focus inputs
+        function renderTimersOnly() {
+            const container = document.getElementById('timers-container');
+            const timerElements = container.children;
+
+            timers.forEach((timer, index) => {
+                if (timerElements[index]) {
+                    const minutes = Math.floor(timer.timeLeft / 60);
+                    const seconds = timer.timeLeft % 60;
+                    const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    
+                    const clockEl = timerElements[index].querySelector('.font-mono');
+                    if (clockEl) {
+                        clockEl.innerText = formattedTime;
+                        clockEl.className = `font-mono text-base font-black ${timer.timeLeft === 0 ? 'text-red-400 animate-pulse' : 'text-amber-300'}`;
+                    }
+
+                    const playBtn = timerElements[index].querySelector('button[title="Start"], button[title="Pause"]');
+                    if (playBtn) {
+                        playBtn.title = timer.isRunning ? 'Pause' : 'Start';
+                        playBtn.className = `w-7 h-7 ${timer.isRunning ? 'bg-amber-600 hover:bg-amber-500' : 'bg-emerald-600 hover:bg-emerald-500'} text-white rounded-lg text-xs flex items-center justify-center transition cursor-pointer`;
+                        playBtn.innerHTML = `<i class="fa-solid ${timer.isRunning ? 'fa-pause' : 'fa-play'} text-[10px]"></i>`;
+                    }
+                }
+            });
+            saveState();
+        }
+
+        function addTimer() {
+            const newId = timers.length > 0 ? Math.max(...timers.map(t => t.id)) + 1 : 1;
+            timers.push({
+                id: newId,
+                name: `Match Timer ${newId}`,
+                timeLeft: 600, // 10 minutes
+                isRunning: false
+            });
+            renderTimers();
+        }
+
+        function toggleTimer(id) {
+            const timer = timers.find(t => t.id === id);
+            if (timer) {
+                timer.isRunning = !timer.isRunning;
+                renderTimers();
+            }
+        }
+
+        function resetTimer(id) {
+            const timer = timers.find(t => t.id === id);
+            if (timer) {
+                timer.timeLeft = 600;
+                timer.isRunning = false;
+                renderTimers();
+            }
+        }
+
+        function removeTimer(id) {
+            timers = timers.filter(t => t.id !== id);
+            renderTimers();
+        }
+
+        function updateTimerName(id, newName) {
+            const timer = timers.find(t => t.id === id);
+            if (timer) {
+                timer.name = newName.trim() || `Timer ${id}`;
+            }
         }
 
         function loadCustomImage() {
@@ -451,9 +614,10 @@
         }
 
         function resetAllStats() {
-            if (confirm("Reset all team points and clear missions?")) {
+            if (confirm("Reset all team points, clear missions, and reset timers?")) {
                 teams.forEach(t => { t.points = 0; });
                 missions = [];
+                timers.forEach(t => { t.timeLeft = 600; t.isRunning = false; });
                 render();
             }
         }
@@ -496,10 +660,11 @@
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // Initialize App & start slideshow interval on load
+        // Initialize App & start engines on load
         loadState();
         render();
         startSlideshow();
+        startTimerEngine();
     </script>
 </body>
 </html>
