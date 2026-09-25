@@ -3,184 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sports Scoreboard & Tournament Hub</title>
-    <!-- Tailwind CSS for modern, clean UI design -->
+    <title>Tournament Hub & Goal Tracker</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-900 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
 
     <!-- Header / Navbar -->
-    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-500/30">
-                    <i class="fa-solid fa-trophy text-white text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight text-white">Tournament Hub & Scoreboard</h1>
-                    <p class="text-xs text-slate-400">Manage teams, track match stats & stream live media</p>
-                </div>
+    <header class="bg-slate-800 border-b border-slate-700 px-4 py-2 shrink-0 flex items-center justify-between shadow-md">
+        <div class="flex items-center space-x-2">
+            <div class="bg-indigo-600 p-1.5 rounded-lg shadow-md shadow-indigo-500/30">
+                <i class="fa-solid fa-trophy text-white text-xs"></i>
             </div>
+            <div>
+                <h1 class="text-sm font-bold tracking-tight text-white leading-tight">Tournament Hub</h1>
+                <p class="text-[9px] text-slate-400">Scoreboard, Goals & Streams</p>
+            </div>
+        </div>
 
-            <!-- Global Tournament Stats Counter -->
-            <div class="bg-slate-900/80 border border-slate-700/80 px-5 py-2 rounded-2xl flex items-center gap-6 shadow-inner">
-                <div class="text-center">
-                    <span class="block text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Total Teams</span>
-                    <span id="global-teams-count" class="text-lg font-black text-indigo-400">0</span>
-                </div>
-                <div class="h-8 w-px bg-slate-700"></div>
-                <div class="text-center">
-                    <span class="block text-[10px] uppercase tracking-wider text-slate-400 font-semibold">All Teams Goals</span>
-                    <span id="global-goals-count" class="text-lg font-black text-emerald-400">0</span>
-                </div>
+        <!-- Global Tournament Stats Counter -->
+        <div class="bg-slate-900/80 border border-slate-700/80 px-3 py-1 rounded-xl flex items-center gap-3 shadow-inner">
+            <div class="text-center">
+                <span class="block text-[8px] uppercase tracking-wider text-slate-400 font-semibold">Teams</span>
+                <span id="global-teams-count" class="text-xs font-black text-indigo-400">0</span>
+            </div>
+            <div class="h-5 w-px bg-slate-700"></div>
+            <div class="text-center">
+                <span class="block text-[8px] uppercase tracking-wider text-slate-400 font-semibold">Total Goals</span>
+                <span id="global-goals-count" class="text-xs font-black text-emerald-400">0</span>
             </div>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+    <!-- Main Container - Single Screen Layout Grid -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-2.5 grid grid-cols-1 lg:grid-cols-12 gap-2.5 overflow-hidden">
 
-        <!-- Controls Toolbar: Add/Remove Teams & Quick Actions -->
-        <section class="bg-slate-800/60 border border-slate-700/60 p-4 rounded-2xl backdrop-blur-sm flex flex-wrap items-center justify-between gap-4 shadow-sm">
-            <div class="flex items-center gap-3">
-                <button onclick="addTeam()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-md shadow-indigo-600/20 flex items-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-plus"></i> Add Team
-                </button>
-                <button onclick="resetAllStats()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-rotate-right"></i> Reset Stats
-                </button>
-            </div>
-            <div class="text-xs text-slate-400 flex items-center gap-1.5 bg-slate-900/40 px-3 py-2 rounded-lg border border-slate-700/50">
-                <i class="fa-solid fa-circle-info text-indigo-400"></i> Minimum of 2 active teams required. Click team names to edit them.
-            </div>
-        </section>
-
-        <!-- Teams Grid -->
-        <section>
-            <div id="teams-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Dynamically injected team cards will appear here -->
-            </div>
-        </section>
-
-        <!-- YouTube Video Embed Section -->
-        <section class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm shadow-sm space-y-4">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                        <i class="fa-brands fa-youtube text-red-500 text-xl"></i> Match Live Stream / Highlight Embed
-                    </h2>
-                    <p class="text-xs text-slate-400">Paste any YouTube URL or Share link below to render the video player instantly.</p>
-                </div>
-                <div class="flex items-center gap-2 w-full md:w-auto">
-                    <div class="relative flex-1 md:w-80">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            <i class="fa-solid fa-link text-xs"></i>
-                        </span>
-                        <input type="text" id="youtube-url-input" placeholder="https://www.youtube.com/watch?v=..." 
-                            class="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
-                    </div>
-                    <button onclick="embedYouTubeVideo()" class="bg-red-600 hover:bg-red-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-md shadow-red-600/20 flex items-center gap-2 cursor-pointer shrink-0">
-                        Load Video
+        <!-- Left Column: Teams & Controls (Takes up 7 cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-2 overflow-hidden">
+            <!-- Toolbar -->
+            <div class="bg-slate-800/60 border border-slate-700/60 px-3 py-1.5 rounded-xl flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-2">
+                    <button onclick="addTeam()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-2.5 py-1 rounded-lg text-xs transition shadow-sm flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-plus text-[9px]"></i> Add Team
+                    </button>
+                    <button onclick="openGoalModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-2.5 py-1 rounded-lg text-xs transition shadow-sm flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-bullseye text-[9px]"></i> Add Goal
+                    </button>
+                    <button onclick="resetAllStats()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium px-2 py-1 rounded-lg text-xs transition flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-rotate-right text-[9px]"></i> Reset
                     </button>
                 </div>
+                <span class="text-[10px] text-slate-400"><i class="fa-solid fa-circle-info text-indigo-400"></i> Min 2 teams</span>
             </div>
 
-            <!-- YouTube Video Responsive Container -->
-            <div id="youtube-player-wrapper" class="hidden relative w-full aspect-video bg-slate-900 rounded-xl overflow-hidden border border-slate-700/80 shadow-inner">
-                <!-- Iframe injected via JS using youtube-nocookie.com and safe referrer headers to bypass Error 153 -->
+            <!-- Teams Scrollable Container -->
+            <div id="teams-container" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                <!-- Injected Team Cards -->
             </div>
+        </section>
+
+        <!-- Right Column: Goals Tracker & YouTube Widget (Takes up 5 cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-2 overflow-hidden">
             
-            <div id="youtube-placeholder" class="border border-dashed border-slate-700 rounded-xl p-8 text-center text-slate-500 text-sm">
-                No video loaded yet. Enter a YouTube link above to view stream/highlights.
+            <!-- Team Goal Missions Box -->
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-2.5 flex flex-col h-1/2 overflow-hidden shadow-sm">
+                <div class="flex items-center justify-between pb-1.5 shrink-0 border-b border-slate-700/60">
+                    <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
+                        <i class="fa-solid fa-flag-checkered text-amber-400"></i> Active Team Goals (+5 Pts Reward)
+                    </h2>
+                    <span id="goals-badge" class="text-[10px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded-full font-semibold">0</span>
+                </div>
+                <!-- Scrollable list of user-created goals -->
+                <div id="missions-container" class="flex-1 overflow-y-auto space-y-1.5 pt-1.5 pr-1">
+                    <div class="text-center text-slate-500 text-[11px] py-4">No active team goals. Click "Add Goal" above to create one!</div>
+                </div>
             </div>
+
+            <!-- YouTube Stream Widget Box -->
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-2.5 flex flex-col h-1/2 overflow-hidden shadow-sm">
+                <div class="flex items-center justify-between gap-2 pb-1.5 shrink-0">
+                    <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
+                        <i class="fa-brands fa-youtube text-red-500 text-sm"></i> YouTube Stream
+                    </h2>
+                    <div class="flex items-center gap-1 flex-1 max-w-[220px]">
+                        <input type="text" id="youtube-url-input" placeholder="Paste YouTube Link..." 
+                            class="w-full px-2 py-1 bg-slate-900 border border-slate-700 rounded text-[11px] text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                        <button onclick="embedYouTubeVideo()" class="bg-red-600 hover:bg-red-500 text-white font-medium px-2 py-1 rounded text-[11px] cursor-pointer shrink-0">
+                            Load
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Video Frame Area -->
+                <div class="flex-1 bg-slate-900 border border-slate-700/80 rounded-lg overflow-hidden flex flex-col justify-center items-center relative">
+                    <div id="youtube-player-wrapper" class="hidden w-full h-full relative"></div>
+                    <div id="youtube-placeholder" class="p-2 text-center text-slate-500 text-[11px] flex items-center gap-1.5">
+                        <i class="fa-solid fa-film text-slate-600"></i>
+                        <span>Paste a link to load video player.</span>
+                    </div>
+                </div>
+            </div>
+
         </section>
 
     </main>
 
-    <!-- Application Script Logic -->
+    <!-- Create Goal Modal -->
+    <div id="goal-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-sm shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-bullseye text-emerald-400"></i> Assign Goal to Team
+                </h3>
+                <button onclick="closeGoalModal()" class="text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-[10px] uppercase font-semibold text-slate-400 mb-1">Select Team</label>
+                    <select id="modal-team-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-semibold text-slate-400 mb-1">Goal Description / Task</label>
+                    <input type="text" id="modal-goal-desc" placeholder="e.g. Score from outside the box" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-2">
+                <button onclick="closeGoalModal()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-lg text-xs cursor-pointer">Cancel</button>
+                <button onclick="saveNewGoal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer shadow-sm">Save & Assign Goal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic Script -->
     <script>
-        // Initial 2 Teams requirement state
         let teams = [
             { id: 1, name: "Red Dragons", points: 0, goals: 0 },
             { id: 2, name: "Blue Titans", points: 0, goals: 0 }
         ];
 
-        // Load data from LocalStorage if available
+        let missions = []; // Custom user goals list
+
         function loadState() {
-            const saved = localStorage.getItem('tournament_hub_teams');
-            if (saved) {
+            const savedTeams = localStorage.getItem('tournament_hub_teams_v2');
+            const savedMissions = localStorage.getItem('tournament_hub_missions_v2');
+            if (savedTeams) {
                 try {
-                    const parsed = JSON.parse(saved);
-                    if (Array.isArray(parsed) && parsed.length >= 2) {
-                        teams = parsed;
-                    }
-                } catch(e) { console.error('Error loading saved teams', e); }
+                    const parsed = JSON.parse(savedTeams);
+                    if (Array.isArray(parsed) && parsed.length >= 2) teams = parsed;
+                } catch(e) {}
+            }
+            if (savedMissions) {
+                try {
+                    const parsed = JSON.parse(savedMissions);
+                    if (Array.isArray(parsed)) missions = parsed;
+                } catch(e) {}
             }
         }
 
         function saveState() {
-            localStorage.setItem('tournament_hub_teams', JSON.stringify(teams));
+            localStorage.setItem('tournament_hub_teams_v2', JSON.stringify(teams));
+            localStorage.setItem('tournament_hub_missions_v2', JSON.stringify(missions));
         }
 
-        // Render everything
         function render() {
+            renderTeams();
+            renderMissions();
+            saveState();
+        }
+
+        function renderTeams() {
             const container = document.getElementById('teams-container');
             container.innerHTML = '';
-
             let totalGoals = 0;
 
             teams.forEach((team, index) => {
                 totalGoals += team.goals;
-
                 const card = document.createElement('div');
-                card.className = "bg-slate-800 border border-slate-700/80 rounded-2xl p-5 shadow-md flex flex-col justify-between gap-5 relative group transition hover:border-slate-600";
+                card.className = "bg-slate-800 border border-slate-700/80 rounded-xl p-2.5 shadow-sm flex flex-col gap-2 transition hover:border-slate-600";
                 
                 card.innerHTML = `
-                    <!-- Top card details -->
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <div class="w-10 h-10 rounded-xl bg-slate-700/60 border border-slate-600/50 flex items-center justify-center font-bold text-indigo-400 shrink-0">
-                                #${index + 1}
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <input type="text" value="${escapeHtml(team.name)}" onchange="updateTeamName(${team.id}, this.value)"
-                                    class="w-full bg-transparent font-bold text-lg text-white border-b border-transparent hover:border-slate-600 focus:border-indigo-500 focus:outline-none px-1 py-0.5 transition truncate"
-                                    title="Click to edit team name">
-                                <span class="text-[11px] text-slate-400 px-1">Active Team</span>
-                            </div>
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 flex-1 min-w-0">
+                            <span class="text-[10px] font-bold text-indigo-400 bg-slate-700/50 px-1.5 py-0.5 rounded">#${index + 1}</span>
+                            <input type="text" value="${escapeHtml(team.name)}" onchange="updateTeamName(${team.id}, this.value)"
+                                class="w-full bg-transparent font-bold text-xs text-white border-b border-transparent hover:border-slate-600 focus:border-indigo-500 focus:outline-none px-1 py-0.5 truncate">
                         </div>
-                        <!-- Remove button (only shows if more than 2 teams exist) -->
                         ${teams.length > 2 ? `
-                            <button onclick="removeTeam(${team.id})" class="text-slate-500 hover:text-red-400 p-2 rounded-lg transition hover:bg-slate-700/50 cursor-pointer" title="Remove Team">
-                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            <button onclick="removeTeam(${team.id})" class="text-slate-500 hover:text-red-400 p-1 rounded transition cursor-pointer" title="Remove Team">
+                                <i class="fa-solid fa-trash-can text-[11px]"></i>
                             </button>
                         ` : `
-                            <button disabled class="text-slate-600 p-2 rounded-lg opacity-40 cursor-not-allowed" title="Minimum 2 teams required">
-                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            <button disabled class="text-slate-600 p-1 rounded opacity-30 cursor-not-allowed" title="Min 2 teams required">
+                                <i class="fa-solid fa-trash-can text-[11px]"></i>
                             </button>
                         `}
                     </div>
 
-                    <!-- Metrics Section (Points & Goals) -->
-                    <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-700/60">
+                    <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-700/50">
                         <!-- Points Controller -->
-                        <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 flex flex-col items-center justify-between">
-                            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Points</span>
-                            <div class="text-2xl font-black text-indigo-400 my-1">${team.points}</div>
-                            <div class="flex items-center gap-1.5 w-full mt-1">
-                                <button onclick="modifyPoints(${team.id}, -1)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-1 rounded-lg border border-slate-700 text-sm transition cursor-pointer">-</button>
-                                <button onclick="modifyPoints(${team.id}, 1)" class="flex-1 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 font-bold py-1 rounded-lg border border-indigo-500/30 text-sm transition cursor-pointer">+</button>
+                        <div class="bg-slate-900/60 border border-slate-700/40 rounded-lg p-1.5 flex items-center justify-between">
+                            <div>
+                                <span class="block text-[8px] uppercase tracking-wider text-slate-400 font-semibold">Points</span>
+                                <span class="text-sm font-black text-indigo-400">${team.points}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button onclick="modifyPoints(${team.id}, -1)" class="w-5 h-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded border border-slate-700 text-[10px] cursor-pointer">-</button>
+                                <button onclick="modifyPoints(${team.id}, 1)" class="w-5 h-5 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 font-bold rounded border border-indigo-500/30 text-[10px] cursor-pointer">+</button>
                             </div>
                         </div>
 
-                        <!-- Goals Controller -->
-                        <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 flex flex-col items-center justify-between">
-                            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Goals</span>
-                            <div class="text-2xl font-black text-emerald-400 my-1">${team.goals}</div>
-                            <div class="flex items-center gap-1.5 w-full mt-1">
-                                <button onclick="modifyGoals(${team.id}, -1)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-1 rounded-lg border border-slate-700 text-sm transition cursor-pointer">-</button>
-                                <button onclick="modifyGoals(${team.id}, 1)" class="flex-1 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 font-bold py-1 rounded-lg border border-emerald-500/30 text-sm transition cursor-pointer">+</button>
+                        <!-- Match Goals Controller -->
+                        <div class="bg-slate-900/60 border border-slate-700/40 rounded-lg p-1.5 flex items-center justify-between">
+                            <div>
+                                <span class="block text-[8px] uppercase tracking-wider text-slate-400 font-semibold">Goals</span>
+                                <span class="text-sm font-black text-emerald-400">${team.goals}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button onclick="modifyGoals(${team.id}, -1)" class="w-5 h-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded border border-slate-700 text-[10px] cursor-pointer">-</button>
+                                <button onclick="modifyGoals(${team.id}, 1)" class="w-5 h-5 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 font-bold rounded border border-emerald-500/30 text-[10px] cursor-pointer">+</button>
                             </div>
                         </div>
                     </div>
@@ -188,30 +240,117 @@
                 container.appendChild(card);
             });
 
-            // Update top global status counters
             document.getElementById('global-teams-count').innerText = teams.length;
             document.getElementById('global-goals-count').innerText = totalGoals;
-
-            saveState();
         }
 
-        // Team management functions
+        function renderMissions() {
+            const container = document.getElementById('missions-container');
+            container.innerHTML = '';
+            document.getElementById('goals-badge').innerText = missions.filter(m => !m.redeemed).length;
+
+            if (missions.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-500 text-[11px] py-4">No goals added yet. Click "Add Goal" to set challenges!</div>`;
+                return;
+            }
+
+            missions.forEach(mission => {
+                const team = teams.find(t => t.id === mission.teamId);
+                const teamName = team ? team.name : 'Unknown Team';
+
+                const div = document.createElement('div');
+                div.className = `p-2 rounded-lg border flex items-center justify-between gap-2 transition ${mission.redeemed ? 'bg-slate-900/30 border-slate-800 opacity-60' : 'bg-slate-900/80 border-slate-700/70'}`;
+                
+                div.innerHTML = `
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 truncate">${escapeHtml(teamName)}</span>
+                            ${mission.redeemed ? '<span class="text-[9px] text-emerald-400 font-semibold"><i class="fa-solid fa-check"></i> Redeemed (+5 pts)</span>' : '<span class="text-[9px] text-amber-400 font-semibold">Active (+5 pts)</span>'}
+                        </div>
+                        <p class="text-xs text-slate-200 mt-1 truncate font-medium" title="${escapeHtml(mission.description)}">${escapeHtml(mission.description)}</p>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        ${!mission.redeemed ? `
+                            <button onclick="redeemMission(${mission.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded transition shadow-sm cursor-pointer flex items-center gap-1">
+                                <i class="fa-solid fa-gift"></i> Redeem
+                            </button>
+                        ` : ''}
+                        <button onclick="deleteMission(${mission.id})" class="text-slate-500 hover:text-red-400 p-1 text-xs cursor-pointer" title="Delete Goal">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Modal Controls
+        function openGoalModal() {
+            const select = document.getElementById('modal-team-select');
+            select.innerHTML = '';
+            teams.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.id;
+                opt.innerText = t.name;
+                select.appendChild(opt);
+            });
+            document.getElementById('modal-goal-desc').value = '';
+            document.getElementById('goal-modal').classList.remove('hidden');
+            document.getElementById('goal-modal').classList.add('flex');
+        }
+
+        function closeGoalModal() {
+            document.getElementById('goal-modal').classList.remove('flex');
+            document.getElementById('goal-modal').classList.add('hidden');
+        }
+
+        function saveNewGoal() {
+            const teamId = parseInt(document.getElementById('modal-team-select').value);
+            const desc = document.getElementById('modal-goal-desc').value.trim();
+
+            if (!desc) {
+                alert("Please enter a description for the goal.");
+                return;
+            }
+
+            missions.push({
+                id: Date.now(),
+                teamId: teamId,
+                description: desc,
+                redeemed: false
+            });
+
+            closeGoalModal();
+            render();
+        }
+
+        function redeemMission(id) {
+            const mission = missions.find(m => m.id === id);
+            if (mission && !mission.redeemed) {
+                mission.redeemed = true;
+                // Add 5 points to the assigned team
+                const team = teams.find(t => t.id === mission.teamId);
+                if (team) {
+                    team.points += 5;
+                }
+                render();
+            }
+        }
+
+        function deleteMission(id) {
+            missions = missions.filter(m => m.id !== id);
+            render();
+        }
+
+        // Team management
         function addTeam() {
             const newId = teams.length > 0 ? Math.max(...teams.map(t => t.id)) + 1 : 1;
-            teams.push({
-                id: newId,
-                name: `Team ${newId}`,
-                points: 0,
-                goals: 0
-            });
+            teams.push({ id: newId, name: `Team ${newId}`, points: 0, goals: 0 });
             render();
         }
 
         function removeTeam(id) {
-            if (teams.length <= 2) {
-                alert("You must keep at least two teams in the tournament.");
-                return;
-            }
+            if (teams.length <= 2) return;
             teams = teams.filter(t => t.id !== id);
             render();
         }
@@ -241,45 +380,40 @@
         }
 
         function resetAllStats() {
-            if (confirm("Are you sure you want to reset all points and goals to zero?")) {
-                teams.forEach(t => {
-                    t.points = 0;
-                    t.goals = 0;
-                });
+            if (confirm("Reset all team points, goals, and clear missions?")) {
+                teams.forEach(t => { t.points = 0; t.goals = 0; });
+                missions = [];
                 render();
             }
         }
 
-        // YouTube Video Parser and Embedding fix for Error 153
+        // YouTube Video Embedder with Fallback Thumbnail Preview Support (Error 153 mitigation)
         function embedYouTubeVideo() {
             const inputVal = document.getElementById('youtube-url-input').value.trim();
             const wrapper = document.getElementById('youtube-player-wrapper');
             const placeholder = document.getElementById('youtube-placeholder');
 
-            if (!inputVal) {
-                alert("Please enter a valid YouTube link.");
-                return;
-            }
-
+            if (!inputVal) return;
             const videoId = extractYouTubeId(inputVal);
 
             if (!videoId) {
-                alert("Could not recognize a valid YouTube video ID from this link. Please check the URL.");
+                alert("Invalid YouTube link format.");
                 return;
             }
 
-            // Using youtube-nocookie.com domain with correct secure referrer policy configurations to prevent Error 153
-            const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
-
             wrapper.innerHTML = `
                 <iframe 
-                    src="${embedUrl}" 
-                    title="YouTube video player" 
-                    class="absolute top-0 left-0 w-full h-full border-0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    src="https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1" 
+                    title="YouTube player" 
+                    class="absolute inset-0 w-full h-full border-0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                     referrerpolicy="strict-origin-when-cross-origin" 
                     allowfullscreen>
                 </iframe>
+                <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" title="Open directly on YouTube if embed is blocked" 
+                   class="absolute top-1 right-1 bg-slate-900/95 hover:bg-red-600 text-[9px] text-slate-200 px-1.5 py-0.5 rounded border border-slate-700 transition">
+                    <i class="fa-solid fa-external-link-alt"></i> Open YT
+                </a>
             `;
 
             wrapper.classList.remove('hidden');
@@ -296,7 +430,6 @@
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // Initialize App on load
         loadState();
         render();
     </script>
