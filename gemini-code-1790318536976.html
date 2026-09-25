@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Scoreboard & Tournament Hub</title>
+    <!-- Tailwind CSS for modern, clean UI design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-trophy text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">Tournament Hub & Scoreboard</h1>
+                    <p class="text-xs text-slate-400">Manage teams, track match stats & stream live media</p>
+                </div>
+            </div>
+
+            <!-- Global Tournament Stats Counter -->
+            <div class="bg-slate-900/80 border border-slate-700/80 px-5 py-2 rounded-2xl flex items-center gap-6 shadow-inner">
+                <div class="text-center">
+                    <span class="block text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Total Teams</span>
+                    <span id="global-teams-count" class="text-lg font-black text-indigo-400">0</span>
+                </div>
+                <div class="h-8 w-px bg-slate-700"></div>
+                <div class="text-center">
+                    <span class="block text-[10px] uppercase tracking-wider text-slate-400 font-semibold">All Teams Goals</span>
+                    <span id="global-goals-count" class="text-lg font-black text-emerald-400">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- Controls Toolbar: Add/Remove Teams & Quick Actions -->
+        <section class="bg-slate-800/60 border border-slate-700/60 p-4 rounded-2xl backdrop-blur-sm flex flex-wrap items-center justify-between gap-4 shadow-sm">
+            <div class="flex items-center gap-3">
+                <button onclick="addTeam()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-md shadow-indigo-600/20 flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-plus"></i> Add Team
+                </button>
+                <button onclick="resetAllStats()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-rotate-right"></i> Reset Stats
+                </button>
+            </div>
+            <div class="text-xs text-slate-400 flex items-center gap-1.5 bg-slate-900/40 px-3 py-2 rounded-lg border border-slate-700/50">
+                <i class="fa-solid fa-circle-info text-indigo-400"></i> Minimum of 2 active teams required. Click team names to edit them.
+            </div>
+        </section>
+
+        <!-- Teams Grid -->
+        <section>
+            <div id="teams-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamically injected team cards will appear here -->
+            </div>
+        </section>
+
+        <!-- YouTube Video Embed Section -->
+        <section class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 backdrop-blur-sm shadow-sm space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-brands fa-youtube text-red-500 text-xl"></i> Match Live Stream / Highlight Embed
+                    </h2>
+                    <p class="text-xs text-slate-400">Paste any YouTube URL or Share link below to render the video player instantly.</p>
+                </div>
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                    <div class="relative flex-1 md:w-80">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-link text-xs"></i>
+                        </span>
+                        <input type="text" id="youtube-url-input" placeholder="https://www.youtube.com/watch?v=..." 
+                            class="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+                    <button onclick="embedYouTubeVideo()" class="bg-red-600 hover:bg-red-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-md shadow-red-600/20 flex items-center gap-2 cursor-pointer shrink-0">
+                        Load Video
+                    </button>
+                </div>
+            </div>
+
+            <!-- YouTube Video Responsive Container -->
+            <div id="youtube-player-wrapper" class="hidden relative w-full aspect-video bg-slate-900 rounded-xl overflow-hidden border border-slate-700/80 shadow-inner">
+                <!-- Iframe injected via JS using youtube-nocookie.com and safe referrer headers to bypass Error 153 -->
+            </div>
+            
+            <div id="youtube-placeholder" class="border border-dashed border-slate-700 rounded-xl p-8 text-center text-slate-500 text-sm">
+                No video loaded yet. Enter a YouTube link above to view stream/highlights.
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Application Script Logic -->
+    <script>
+        // Initial 2 Teams requirement state
+        let teams = [
+            { id: 1, name: "Red Dragons", points: 0, goals: 0 },
+            { id: 2, name: "Blue Titans", points: 0, goals: 0 }
+        ];
+
+        // Load data from LocalStorage if available
+        function loadState() {
+            const saved = localStorage.getItem('tournament_hub_teams');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length >= 2) {
+                        teams = parsed;
+                    }
+                } catch(e) { console.error('Error loading saved teams', e); }
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('tournament_hub_teams', JSON.stringify(teams));
+        }
+
+        // Render everything
+        function render() {
+            const container = document.getElementById('teams-container');
+            container.innerHTML = '';
+
+            let totalGoals = 0;
+
+            teams.forEach((team, index) => {
+                totalGoals += team.goals;
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-800 border border-slate-700/80 rounded-2xl p-5 shadow-md flex flex-col justify-between gap-5 relative group transition hover:border-slate-600";
+                
+                card.innerHTML = `
+                    <!-- Top card details -->
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <div class="w-10 h-10 rounded-xl bg-slate-700/60 border border-slate-600/50 flex items-center justify-center font-bold text-indigo-400 shrink-0">
+                                #${index + 1}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <input type="text" value="${escapeHtml(team.name)}" onchange="updateTeamName(${team.id}, this.value)"
+                                    class="w-full bg-transparent font-bold text-lg text-white border-b border-transparent hover:border-slate-600 focus:border-indigo-500 focus:outline-none px-1 py-0.5 transition truncate"
+                                    title="Click to edit team name">
+                                <span class="text-[11px] text-slate-400 px-1">Active Team</span>
+                            </div>
+                        </div>
+                        <!-- Remove button (only shows if more than 2 teams exist) -->
+                        ${teams.length > 2 ? `
+                            <button onclick="removeTeam(${team.id})" class="text-slate-500 hover:text-red-400 p-2 rounded-lg transition hover:bg-slate-700/50 cursor-pointer" title="Remove Team">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        ` : `
+                            <button disabled class="text-slate-600 p-2 rounded-lg opacity-40 cursor-not-allowed" title="Minimum 2 teams required">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        `}
+                    </div>
+
+                    <!-- Metrics Section (Points & Goals) -->
+                    <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-700/60">
+                        <!-- Points Controller -->
+                        <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 flex flex-col items-center justify-between">
+                            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Points</span>
+                            <div class="text-2xl font-black text-indigo-400 my-1">${team.points}</div>
+                            <div class="flex items-center gap-1.5 w-full mt-1">
+                                <button onclick="modifyPoints(${team.id}, -1)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-1 rounded-lg border border-slate-700 text-sm transition cursor-pointer">-</button>
+                                <button onclick="modifyPoints(${team.id}, 1)" class="flex-1 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 font-bold py-1 rounded-lg border border-indigo-500/30 text-sm transition cursor-pointer">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Goals Controller -->
+                        <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 flex flex-col items-center justify-between">
+                            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Goals</span>
+                            <div class="text-2xl font-black text-emerald-400 my-1">${team.goals}</div>
+                            <div class="flex items-center gap-1.5 w-full mt-1">
+                                <button onclick="modifyGoals(${team.id}, -1)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-1 rounded-lg border border-slate-700 text-sm transition cursor-pointer">-</button>
+                                <button onclick="modifyGoals(${team.id}, 1)" class="flex-1 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 font-bold py-1 rounded-lg border border-emerald-500/30 text-sm transition cursor-pointer">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Update top global status counters
+            document.getElementById('global-teams-count').innerText = teams.length;
+            document.getElementById('global-goals-count').innerText = totalGoals;
+
+            saveState();
+        }
+
+        // Team management functions
+        function addTeam() {
+            const newId = teams.length > 0 ? Math.max(...teams.map(t => t.id)) + 1 : 1;
+            teams.push({
+                id: newId,
+                name: `Team ${newId}`,
+                points: 0,
+                goals: 0
+            });
+            render();
+        }
+
+        function removeTeam(id) {
+            if (teams.length <= 2) {
+                alert("You must keep at least two teams in the tournament.");
+                return;
+            }
+            teams = teams.filter(t => t.id !== id);
+            render();
+        }
+
+        function updateTeamName(id, newName) {
+            const team = teams.find(t => t.id === id);
+            if (team) {
+                team.name = newName.trim() || `Team ${id}`;
+                render();
+            }
+        }
+
+        function modifyPoints(id, amount) {
+            const team = teams.find(t => t.id === id);
+            if (team) {
+                team.points = Math.max(0, team.points + amount);
+                render();
+            }
+        }
+
+        function modifyGoals(id, amount) {
+            const team = teams.find(t => t.id === id);
+            if (team) {
+                team.goals = Math.max(0, team.goals + amount);
+                render();
+            }
+        }
+
+        function resetAllStats() {
+            if (confirm("Are you sure you want to reset all points and goals to zero?")) {
+                teams.forEach(t => {
+                    t.points = 0;
+                    t.goals = 0;
+                });
+                render();
+            }
+        }
+
+        // YouTube Video Parser and Embedding fix for Error 153
+        function embedYouTubeVideo() {
+            const inputVal = document.getElementById('youtube-url-input').value.trim();
+            const wrapper = document.getElementById('youtube-player-wrapper');
+            const placeholder = document.getElementById('youtube-placeholder');
+
+            if (!inputVal) {
+                alert("Please enter a valid YouTube link.");
+                return;
+            }
+
+            const videoId = extractYouTubeId(inputVal);
+
+            if (!videoId) {
+                alert("Could not recognize a valid YouTube video ID from this link. Please check the URL.");
+                return;
+            }
+
+            // Using youtube-nocookie.com domain with correct secure referrer policy configurations to prevent Error 153
+            const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
+
+            wrapper.innerHTML = `
+                <iframe 
+                    src="${embedUrl}" 
+                    title="YouTube video player" 
+                    class="absolute top-0 left-0 w-full h-full border-0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    referrerpolicy="strict-origin-when-cross-origin" 
+                    allowfullscreen>
+                </iframe>
+            `;
+
+            wrapper.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        }
+
+        function extractYouTubeId(url) {
+            let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            let match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Initialize App on load
+        loadState();
+        render();
+    </script>
+</body>
+</html>
