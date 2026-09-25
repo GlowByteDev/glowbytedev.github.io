@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tournament Hub & Goal Tracker</title>
+    <title>Sports Scoreboard & Tournament Hub</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,7 +18,6 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
 
-    <!-- Header / Navbar -->
     <header class="bg-slate-800 border-b border-slate-700 px-4 py-2 shrink-0 flex items-center justify-between shadow-md">
         <div class="flex items-center space-x-2">
             <div class="bg-indigo-600 p-1.5 rounded-lg shadow-md shadow-indigo-500/30">
@@ -26,7 +25,7 @@
             </div>
             <div>
                 <h1 class="text-sm font-bold tracking-tight text-white leading-tight">Tournament Hub</h1>
-                <p class="text-[9px] text-slate-400">Scoreboard, Goals & Streams</p>
+                <p class="text-[9px] text-slate-400">Scoreboard, Goals & Slideshow</p>
             </div>
         </div>
 
@@ -38,13 +37,12 @@
             </div>
             <div class="h-5 w-px bg-slate-700"></div>
             <div class="text-center">
-                <span class="block text-[8px] uppercase tracking-wider text-slate-400 font-semibold">Total Goals</span>
+                <span class="block text-[8px] uppercase tracking-wider text-slate-400 font-semibold">Redeemed Goals</span>
                 <span id="global-goals-count" class="text-xs font-black text-emerald-400">0</span>
             </div>
         </div>
     </header>
 
-    <!-- Main Container - Single Screen Layout Grid -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-2.5 grid grid-cols-1 lg:grid-cols-12 gap-2.5 overflow-hidden">
 
         <!-- Left Column: Teams & Controls (Takes up 7 cols) -->
@@ -71,46 +69,95 @@
             </div>
         </section>
 
-        <!-- Right Column: Goals Tracker & YouTube Widget (Takes up 5 cols) -->
-        <section class="lg:col-span-5 flex flex-col gap-2 overflow-hidden">
+        <!-- Right Column: Goals Tracker, Slideshow, Custom Image & YouTube Widget -->
+        <section class="lg:col-span-5 grid grid-cols-1 md:grid-cols-2 gap-2 overflow-hidden">
             
-            <!-- Team Goal Missions Box -->
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-2.5 flex flex-col h-1/2 overflow-hidden shadow-sm">
-                <div class="flex items-center justify-between pb-1.5 shrink-0 border-b border-slate-700/60">
-                    <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
-                        <i class="fa-solid fa-flag-checkered text-amber-400"></i> Active Team Goals (+5 Pts Reward)
-                    </h2>
-                    <span id="goals-badge" class="text-[10px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded-full font-semibold">0</span>
+            <!-- Column A: Goal Missions & Automated 1s Slideshow -->
+            <div class="flex flex-col gap-2 overflow-hidden">
+                <!-- Team Goal Missions Box -->
+                <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-2.5 flex flex-col h-1/2 overflow-hidden shadow-sm">
+                    <div class="flex items-center justify-between pb-1.5 shrink-0 border-b border-slate-700/60">
+                        <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-flag-checkered text-amber-400"></i> Active Goals (+5 Pts)
+                        </h2>
+                        <span id="goals-badge" class="text-[10px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded-full font-semibold">0</span>
+                    </div>
+                    <div id="missions-container" class="flex-1 overflow-y-auto space-y-1.5 pt-1.5 pr-1">
+                        <div class="text-center text-slate-500 text-[11px] py-4">No active team goals. Click "Add Goal"!</div>
+                    </div>
                 </div>
-                <!-- Scrollable list of user-created goals -->
-                <div id="missions-container" class="flex-1 overflow-y-auto space-y-1.5 pt-1.5 pr-1">
-                    <div class="text-center text-slate-500 text-[11px] py-4">No active team goals. Click "Add Goal" above to create one!</div>
+
+                <!-- Automated 1-Second Image Slideshow (1.png to 4.png) -->
+                <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-2.5 flex flex-col h-1/2 overflow-hidden shadow-sm">
+                    <div class="flex items-center justify-between pb-1.5 shrink-0 border-b border-slate-700/60">
+                        <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-images text-indigo-400"></i> Live Slideshow (<span id="slide-counter">1</span>/4)
+                        </h2>
+                    </div>
+                    <div class="flex-1 relative mt-1.5 rounded-lg overflow-hidden bg-slate-900 border border-slate-700/80 flex items-center justify-center">
+                        <img id="slideshow-img" src="1.png" alt="Slideshow Image" 
+                             onerror="this.onerror=null; this.src='https://placehold.co/400x300/1e293b/cbd5e1?text=Image+1.png+Missing';" 
+                             class="w-full h-full object-cover transition-opacity duration-300">
+                        <div class="absolute bottom-1 left-1 bg-slate-950/80 px-1.5 py-0.5 rounded text-[9px] text-slate-300">
+                            Cycles 1s (1.png - 4.png)
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- YouTube Stream Widget Box -->
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-2.5 flex flex-col h-1/2 overflow-hidden shadow-sm">
-                <div class="flex items-center justify-between gap-2 pb-1.5 shrink-0">
-                    <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
-                        <i class="fa-brands fa-youtube text-red-500 text-sm"></i> YouTube Stream
-                    </h2>
-                    <div class="flex items-center gap-1 flex-1 max-w-[220px]">
+            <!-- Column B: Dynamic Image URL & YouTube Widget -->
+            <div class="flex flex-col gap-2 overflow-hidden">
+                
+                <!-- Dynamic Image URL Widget -->
+                <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-2.5 flex flex-col h-1/2 overflow-hidden shadow-sm">
+                    <div class="flex items-center justify-between gap-1 pb-1.5 shrink-0 border-b border-slate-700/60">
+                        <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-camera text-emerald-400"></i> Custom Image Link
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-1 mt-1.5 shrink-0">
+                        <input type="text" id="image-url-input" placeholder="Paste Image URL..." 
+                            class="w-full px-2 py-1 bg-slate-900 border border-slate-700 rounded text-[11px] text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                        <button onclick="loadCustomImage()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-2 py-1 rounded text-[11px] cursor-pointer shrink-0">
+                            Load
+                        </button>
+                    </div>
+                    <!-- Custom Image Container -->
+                    <div class="flex-1 relative mt-1.5 rounded-lg overflow-hidden bg-slate-900 border border-slate-700/80 flex items-center justify-center">
+                        <div id="custom-image-wrapper" class="hidden w-full h-full relative">
+                            <img id="dynamic-user-img" src="" alt="Custom Image" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x300/1e293b/cbd5e1?text=Invalid+Image+URL';">
+                        </div>
+                        <div id="custom-image-placeholder" class="p-2 text-center text-slate-500 text-[10px] flex flex-col items-center gap-1">
+                            <i class="fa-solid fa-image text-slate-600 text-lg"></i>
+                            <span>Paste image link to render.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- YouTube Stream Widget Box -->
+                <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-2.5 flex flex-col h-1/2 overflow-hidden shadow-sm">
+                    <div class="flex items-center justify-between pb-1.5 shrink-0 border-b border-slate-700/60">
+                        <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <i class="fa-brands fa-youtube text-red-500 text-sm"></i> YouTube Stream
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-1 mt-1.5 shrink-0">
                         <input type="text" id="youtube-url-input" placeholder="Paste YouTube Link..." 
                             class="w-full px-2 py-1 bg-slate-900 border border-slate-700 rounded text-[11px] text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
                         <button onclick="embedYouTubeVideo()" class="bg-red-600 hover:bg-red-500 text-white font-medium px-2 py-1 rounded text-[11px] cursor-pointer shrink-0">
                             Load
                         </button>
                     </div>
-                </div>
-
-                <!-- Video Frame Area -->
-                <div class="flex-1 bg-slate-900 border border-slate-700/80 rounded-lg overflow-hidden flex flex-col justify-center items-center relative">
-                    <div id="youtube-player-wrapper" class="hidden w-full h-full relative"></div>
-                    <div id="youtube-placeholder" class="p-2 text-center text-slate-500 text-[11px] flex items-center gap-1.5">
-                        <i class="fa-solid fa-film text-slate-600"></i>
-                        <span>Paste a link to load video player.</span>
+                    <!-- Video Frame Area -->
+                    <div class="flex-1 relative mt-1.5 rounded-lg overflow-hidden bg-slate-900 border border-slate-700/80 flex items-center justify-center">
+                        <div id="youtube-player-wrapper" class="hidden w-full h-full relative"></div>
+                        <div id="youtube-placeholder" class="p-2 text-center text-slate-500 text-[10px] flex items-center gap-1">
+                            <i class="fa-solid fa-film text-slate-600"></i>
+                            <span>Paste link to load player.</span>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
         </section>
@@ -146,18 +193,39 @@
         </div>
     </div>
 
-    <!-- Application Logic Script -->
     <script>
         let teams = [
-            { id: 1, name: "Red Dragons", points: 0, goals: 0 },
-            { id: 2, name: "Blue Titans", points: 0, goals: 0 }
+            { id: 1, name: "Red Dragons", points: 0 },
+            { id: 2, name: "Blue Titans", points: 0 }
         ];
 
-        let missions = []; // Custom user goals list
+        let missions = []; 
+        let customImageUrl = '';
+
+        // Slideshow image sequence state (1.png to 4.png)
+        const slideshowImages = ['1.png', '2.png', '3.png', '4.png'];
+        let currentSlideIndex = 0;
+
+        function startSlideshow() {
+            setInterval(() => {
+                currentSlideIndex = (currentSlideIndex + 1) % slideshowImages.length;
+                const imgElement = document.getElementById('slideshow-img');
+                const counterElement = document.getElementById('slide-counter');
+                
+                if (imgElement) {
+                    imgElement.src = slideshowImages[currentSlideIndex];
+                }
+                if (counterElement) {
+                    counterElement.innerText = currentSlideIndex + 1;
+                }
+            }, 1000); // 1000ms = 1 second interval
+        }
 
         function loadState() {
-            const savedTeams = localStorage.getItem('tournament_hub_teams_v2');
-            const savedMissions = localStorage.getItem('tournament_hub_missions_v2');
+            const savedTeams = localStorage.getItem('tournament_hub_teams_v4');
+            const savedMissions = localStorage.getItem('tournament_hub_missions_v4');
+            const savedImg = localStorage.getItem('tournament_hub_custom_img_v4');
+            
             if (savedTeams) {
                 try {
                     const parsed = JSON.parse(savedTeams);
@@ -170,11 +238,17 @@
                     if (Array.isArray(parsed)) missions = parsed;
                 } catch(e) {}
             }
+            if (savedImg) {
+                customImageUrl = savedImg;
+                document.getElementById('image-url-input').value = customImageUrl;
+                renderCustomImage();
+            }
         }
 
         function saveState() {
-            localStorage.setItem('tournament_hub_teams_v2', JSON.stringify(teams));
-            localStorage.setItem('tournament_hub_missions_v2', JSON.stringify(missions));
+            localStorage.setItem('tournament_hub_teams_v4', JSON.stringify(teams));
+            localStorage.setItem('tournament_hub_missions_v4', JSON.stringify(missions));
+            localStorage.setItem('tournament_hub_custom_img_v4', customImageUrl);
         }
 
         function render() {
@@ -186,10 +260,8 @@
         function renderTeams() {
             const container = document.getElementById('teams-container');
             container.innerHTML = '';
-            let totalGoals = 0;
 
             teams.forEach((team, index) => {
-                totalGoals += team.goals;
                 const card = document.createElement('div');
                 card.className = "bg-slate-800 border border-slate-700/80 rounded-xl p-2.5 shadow-sm flex flex-col gap-2 transition hover:border-slate-600";
                 
@@ -211,28 +283,15 @@
                         `}
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-700/50">
-                        <!-- Points Controller -->
-                        <div class="bg-slate-900/60 border border-slate-700/40 rounded-lg p-1.5 flex items-center justify-between">
+                    <div class="pt-1 border-t border-slate-700/50">
+                        <div class="bg-slate-900/60 border border-slate-700/40 rounded-lg p-2 flex items-center justify-between">
                             <div>
-                                <span class="block text-[8px] uppercase tracking-wider text-slate-400 font-semibold">Points</span>
-                                <span class="text-sm font-black text-indigo-400">${team.points}</span>
+                                <span class="block text-[8px] uppercase tracking-wider text-slate-400 font-semibold">Tournament Points</span>
+                                <span class="text-base font-black text-indigo-400">${team.points} pts</span>
                             </div>
-                            <div class="flex items-center gap-1">
-                                <button onclick="modifyPoints(${team.id}, -1)" class="w-5 h-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded border border-slate-700 text-[10px] cursor-pointer">-</button>
-                                <button onclick="modifyPoints(${team.id}, 1)" class="w-5 h-5 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 font-bold rounded border border-indigo-500/30 text-[10px] cursor-pointer">+</button>
-                            </div>
-                        </div>
-
-                        <!-- Match Goals Controller -->
-                        <div class="bg-slate-900/60 border border-slate-700/40 rounded-lg p-1.5 flex items-center justify-between">
-                            <div>
-                                <span class="block text-[8px] uppercase tracking-wider text-slate-400 font-semibold">Goals</span>
-                                <span class="text-sm font-black text-emerald-400">${team.goals}</span>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <button onclick="modifyGoals(${team.id}, -1)" class="w-5 h-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded border border-slate-700 text-[10px] cursor-pointer">-</button>
-                                <button onclick="modifyGoals(${team.id}, 1)" class="w-5 h-5 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 font-bold rounded border border-emerald-500/30 text-[10px] cursor-pointer">+</button>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="modifyPoints(${team.id}, -1)" class="w-6 h-6 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded border border-slate-700 text-xs cursor-pointer">-</button>
+                                <button onclick="modifyPoints(${team.id}, 1)" class="w-6 h-6 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 font-bold rounded border border-indigo-500/30 text-xs cursor-pointer">+</button>
                             </div>
                         </div>
                     </div>
@@ -241,7 +300,7 @@
             });
 
             document.getElementById('global-teams-count').innerText = teams.length;
-            document.getElementById('global-goals-count').innerText = totalGoals;
+            document.getElementById('global-goals-count').innerText = missions.filter(m => m.redeemed).length;
         }
 
         function renderMissions() {
@@ -250,7 +309,7 @@
             document.getElementById('goals-badge').innerText = missions.filter(m => !m.redeemed).length;
 
             if (missions.length === 0) {
-                container.innerHTML = `<div class="text-center text-slate-500 text-[11px] py-4">No goals added yet. Click "Add Goal" to set challenges!</div>`;
+                container.innerHTML = `<div class="text-center text-slate-500 text-[11px] py-4">No goals added yet. Click "Add Goal"!</div>`;
                 return;
             }
 
@@ -284,7 +343,29 @@
             });
         }
 
-        // Modal Controls
+        function loadCustomImage() {
+            const val = document.getElementById('image-url-input').value.trim();
+            if (!val) {
+                alert("Please enter a valid image URL.");
+                return;
+            }
+            customImageUrl = val;
+            renderCustomImage();
+            saveState();
+        }
+
+        function renderCustomImage() {
+            const wrapper = document.getElementById('custom-image-wrapper');
+            const placeholder = document.getElementById('custom-image-placeholder');
+            const imgEl = document.getElementById('dynamic-user-img');
+
+            if (customImageUrl) {
+                imgEl.src = customImageUrl;
+                wrapper.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            }
+        }
+
         function openGoalModal() {
             const select = document.getElementById('modal-team-select');
             select.innerHTML = '';
@@ -328,7 +409,6 @@
             const mission = missions.find(m => m.id === id);
             if (mission && !mission.redeemed) {
                 mission.redeemed = true;
-                // Add 5 points to the assigned team
                 const team = teams.find(t => t.id === mission.teamId);
                 if (team) {
                     team.points += 5;
@@ -342,10 +422,9 @@
             render();
         }
 
-        // Team management
         function addTeam() {
             const newId = teams.length > 0 ? Math.max(...teams.map(t => t.id)) + 1 : 1;
-            teams.push({ id: newId, name: `Team ${newId}`, points: 0, goals: 0 });
+            teams.push({ id: newId, name: `Team ${newId}`, points: 0 });
             render();
         }
 
@@ -371,23 +450,14 @@
             }
         }
 
-        function modifyGoals(id, amount) {
-            const team = teams.find(t => t.id === id);
-            if (team) {
-                team.goals = Math.max(0, team.goals + amount);
-                render();
-            }
-        }
-
         function resetAllStats() {
-            if (confirm("Reset all team points, goals, and clear missions?")) {
-                teams.forEach(t => { t.points = 0; t.goals = 0; });
+            if (confirm("Reset all team points and clear missions?")) {
+                teams.forEach(t => { t.points = 0; });
                 missions = [];
                 render();
             }
         }
 
-        // YouTube Video Embedder with Fallback Thumbnail Preview Support (Error 153 mitigation)
         function embedYouTubeVideo() {
             const inputVal = document.getElementById('youtube-url-input').value.trim();
             const wrapper = document.getElementById('youtube-player-wrapper');
@@ -410,10 +480,6 @@
                     referrerpolicy="strict-origin-when-cross-origin" 
                     allowfullscreen>
                 </iframe>
-                <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" title="Open directly on YouTube if embed is blocked" 
-                   class="absolute top-1 right-1 bg-slate-900/95 hover:bg-red-600 text-[9px] text-slate-200 px-1.5 py-0.5 rounded border border-slate-700 transition">
-                    <i class="fa-solid fa-external-link-alt"></i> Open YT
-                </a>
             `;
 
             wrapper.classList.remove('hidden');
@@ -430,8 +496,10 @@
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
+        // Initialize App & start slideshow interval on load
         loadState();
         render();
+        startSlideshow();
     </script>
 </body>
 </html>
